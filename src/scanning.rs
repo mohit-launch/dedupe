@@ -40,3 +40,51 @@ fn scan_parallel(dir: &Path, files: &mut Vec<PathBuf>) {
         }
     }
 }
+#[cfg(test)]
+mod tests{
+    use super::*;
+    use tempfile::tempdir;
+    use std::fs::{self, File};
+    use std::io::Write;
+
+    #[test]
+    fn test_scan_directory_parallel(){
+        let dir=tempdir().unwrap();
+        let file_path1=dir.path().join("file1.txt");
+        let file_path2=dir.path().join("file2.txt");
+
+        let mut file1=File::create(&file_path1).unwrap();
+        writeln!(file1,"This is file 1").unwrap();
+
+        let mut file2=File::create(&file_path2).unwrap();
+        writeln!(file2,"This is file2").unwrap();
+
+        let res=scan_directory_parallel(dir.path());
+        assert_eq!(res.contains(&file_path1),true);
+        assert_eq!(res.contains(&file_path2),true);
+    }
+     #[test]
+    fn test_scan_directory_empty_folder() {
+        let dir = tempdir().unwrap();
+
+        let results = scan_directory_parallel(dir.path());
+
+        assert!(results.is_empty(), "Expected empty vector for empty directory");
+    }
+
+    #[test]
+    fn test_scan_directory_ignores_directories() {
+        let dir = tempdir().unwrap();
+        let subdir = dir.path().join("subdir");
+        fs::create_dir(&subdir).unwrap();
+
+        let file_path = subdir.join("nested.txt");
+        let mut file = File::create(&file_path).unwrap();
+        writeln!(file, "Nested file").unwrap();
+
+        let results = scan_directory_parallel(dir.path());
+
+        // Assuming recursive scan
+        assert!(results.contains(&file_path), "Expected recursive scan to include nested file");
+    }
+}
