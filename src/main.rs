@@ -87,9 +87,29 @@ fn main() -> Result<()> {
         // Quarantine duplicates if requested
         quarantine::quarantine_dup(&dedup_report, &args.quarantine_dir)?;
     }
-
-    // Optionally, you can serialize dedup_report separately if needed,
-    // but do not call generate_report with the wrong type.
-
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use std::fs::{self, File};
+    use std::io::Write;
+    use std::path::PathBuf;
+
+    #[test]
+    fn test_duplicate_detection() {
+        let test_dir = PathBuf::from("test_temp");
+
+        // Setup: create duplicate files
+        fs::create_dir_all(&test_dir).unwrap();
+        let file1 = test_dir.join("a.txt");
+        let file2 = test_dir.join("b.txt");
+
+        let content = b"same content here";
+        File::create(&file1).unwrap().write_all(content).unwrap();
+        File::create(&file2).unwrap().write_all(content).unwrap();
+
+        // Cleanup
+        fs::remove_dir_all(&test_dir).unwrap();
+    }
 }
