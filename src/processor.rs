@@ -72,4 +72,5 @@ mod tests {
         let results = process_files_parallel(files, HashAlgorithm::Blake3).unwrap();
         assert!(results.is_empty());
     }
+    
 }
