@@ -1,7 +1,7 @@
+use crate::report::ReportEntry;
 use anyhow::{Context, Result};
 use std::fs;
 use std::path::{Path, PathBuf};
-use crate::report::ReportEntry; 
 
 pub fn quarantine_dup(report: &[ReportEntry], quarantine_dir: &Path) -> Result<()> {
     fs::create_dir_all(quarantine_dir).with_context(|| {
@@ -55,4 +55,83 @@ pub fn quarantine_dup(report: &[ReportEntry], quarantine_dir: &Path) -> Result<(
     }
     println!("Quarantine Complete ✅");
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs::File;
+    use std::io::Write;
+    use std::path::PathBuf;
+    use tempfile::tempdir;
+    use crate::report::ReportEntry;
+
+    fn to_report_entry(paths: Vec<PathBuf>) -> ReportEntry {
+        ReportEntry {
+            hash: "Dummy hash".to_string(),
+            files: paths.into_iter().map(|p| p.to_string_lossy().to_string()).collect(),
+        }
+    }
+    #[test]
+    fn test_quarantine_moves_duplicates() {
+        let temp_src = tempdir().unwrap();
+        let temp_dst = tempdir().unwrap();
+
+        let file1 = temp_src.path().join("dup1.txt");
+        let file2 = temp_src.path().join("dup2.txt");
+
+        let mut f1 = File::create(&file1).unwrap();
+        writeln!(f1, "Hello from file 1").unwrap();
+
+        let mut f2 = File::create(&file2).unwrap();
+        writeln!(f2, "Hello from file 2").unwrap();
+
+        let report = vec![to_report_entry(vec![file1.clone(), file2.clone()])];
+
+        let result = quarantine_dup(&report, temp_dst.path());
+        assert!(result.is_ok());
+
+        // File1 remains, file2 is moved
+        assert!(file1.exists());
+        let quarantined = temp_dst.path().join("dup2.txt");
+        assert!(quarantined.exists());
+    }
+
+    #[test]
+    fn test_quarantine_skips_entries_with_single_file() {
+        let temp_src = tempdir().unwrap();
+        let quarantine_dir = tempdir().unwrap();
+
+        let file = temp_src.path().join("unique.txt");
+        let mut f = File::create(&file).unwrap();
+        writeln!(f, "I am unique").unwrap();
+
+        let report = vec![to_report_entry(vec![file.clone()])];
+        let result = quarantine_dup(&report, quarantine_dir.path());
+        assert!(result.is_ok());
+
+        assert!(file.exists());
+        assert!(quarantine_dir.path().read_dir().unwrap().next().is_none());
+    }
+
+    #[test]
+    fn test_quarantine_creates_directory() {
+        let temp_src = tempdir().unwrap();
+        let quarantine_dir = temp_src.path().join("quarantine");
+
+        let file1 = temp_src.path().join("sample.txt");
+        let file2 = temp_src.path().join("sample_dup.txt");
+
+        let mut f1 = File::create(&file1).unwrap();
+        writeln!(f1, "original").unwrap();
+        let mut f2 = File::create(&file2).unwrap();
+        writeln!(f2, "duplicate").unwrap();
+
+        let report = vec![to_report_entry(vec![file1.clone(), file2.clone()])];
+
+        let result = quarantine_dup(&report, &quarantine_dir);
+        assert!(result.is_ok());
+        assert!(file1.exists());
+        assert!(quarantine_dir.join("sample_dup.txt").exists());
+    }
 }
