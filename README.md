@@ -86,7 +86,7 @@ Run the test suite with:
 cargo test
 ```
 
-Author
+## Author
 Mohit Kumar Satpathy (@mohit-launch)
 Rust • Blockchain • Cloud
 
