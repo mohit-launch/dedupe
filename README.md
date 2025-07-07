@@ -87,7 +87,8 @@ cargo test
 ```
 
 ## Author
-Mohit Kumar Satpathy (@mohit-launch)
+Mohit Kumar Satpathy 
+Linkedin: <a href=”https://www.linkedin.com/in/mohit-satpathy-launchx19/"><img align=”left” ></a>
 Rust • Blockchain • Cloud
 
 A simple, fast tool to find and manage duplicate files. 🚀
