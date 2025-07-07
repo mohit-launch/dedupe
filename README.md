@@ -1,4 +1,4 @@
-# File Deduplication Tool
+# Dedupe-File Deduplication Tool
 
 A command-line tool for finding and managing duplicate files in a directory using various hash algorithms.
 
@@ -23,7 +23,7 @@ A command-line tool for finding and managing duplicate files in a directory usin
 ## Usage
 
 ```sh
-./file-deduplicator [OPTIONS]
+./dedpue [OPTIONS]
 ```
 
 ### Options
@@ -40,17 +40,17 @@ A command-line tool for finding and managing duplicate files in a directory usin
 
 1. Basic scan with default settings:
    ```sh
-   ./file-deduplicator
+   ./dedupe
    ```
 
 2. Scan specific directory with SHA256:
    ```sh
-   ./file-deduplicator -d /path/to/files -a sha256
+   ./dedupe -d /path/to/files -a sha256
    ```
 
 3. Scan and quarantine duplicates:
    ```sh
-   ./file-deduplicator -q --quarantine-dir /path/to/quarantine
+   ./dedupe -q --quarantine-dir /path/to/quarantine
    ```
 
 ## Hash Algorithms
@@ -85,4 +85,10 @@ Run the test suite with:
 ```sh
 cargo test
 ```
+
+Author
+Mohit Kumar Satpathy (@mohit-launch)
+Rust • Blockchain • Cloud
+
+A simple, fast tool to find and manage duplicate files. 🚀
 
