@@ -86,7 +86,7 @@ Run the test suite with:
 cargo test
 ```
 ## 📄 License
-This project is licensed under the MIT License.
+This project is licensed under the MIT LICENSE.
 
 ## Author
 - Mohit Kumar Satpathy 
